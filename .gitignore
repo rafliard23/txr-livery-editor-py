@@ -1,0 +1,6 @@
+# Exclude folders
+/backend/*
+/bin/*
+/lib/*
+/output/*
+/revision/*
