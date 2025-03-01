@@ -6,17 +6,12 @@ import json
 import os
 import subprocess
 
-version = "v0.0.2"
-
-class credits_frame(ctk.CTkToplevel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.geometry(f"{300}x{300}")
-        self.label = ctk.CTkLabel(self, text="Tokyo Xtreme Racer - Livery Tool")
-        self.label.pack(padx=20, pady=20)
-
+version = "v1.0 RC2"
+main_author = "rafli.ard23"
+        
 class control_frame(ctk.CTkFrame):
+    first_run = True
+
     def __init__(self, master, car_list_section, **kwargs):
         super().__init__(master, **kwargs)
         self.car_list_section = car_list_section
@@ -25,11 +20,10 @@ class control_frame(ctk.CTkFrame):
         self.grid_rowconfigure(8, weight=1)
 
         self._default_tmp_path = "./bin/temp/tmp.json"
-        self.default_save_path = self.open_default_sav()
         
         # Save File IO Function
         self.button_open = ctk.CTkButton(self, text="Open", width=100,command=self.button_open_filedialog_callback)
-        self.button_open.grid(row=0, column=0, padx=20, pady=(60, 20), sticky="ew")
+        self.button_open.grid(row=0, column=0, padx=20, pady=(40, 20), sticky="ew")
         self.button_auto = ctk.CTkButton(self, text="Autoload", width=100, command=self.button_autoload_callback)
         self.button_auto.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="ew")
         self.button_save = ctk.CTkButton(self, text="Save", width=100, command=self.button_save_callback)
@@ -43,9 +37,11 @@ class control_frame(ctk.CTkFrame):
         self.button_restore = ctk.CTkButton(self, text="Restore", width=100, command=self.button_restore_filedialog_callback)
         self.button_restore.grid(row=5, column=0, padx=20, pady=(0, 20), sticky="ew")
 
-        # Show Credits
-        self.credit_button = ctk.CTkButton(self, text="Credits", width=60, command=self.get_credits)
-        self.credit_button.grid(row=8, column=0, padx=20, pady=(0, 20), sticky="ews")
+        # Show Version and Author
+        self.ver_info = ctk.CTkLabel(self, text=version)
+        self.ver_info.grid(row=8, column=0, padx=20, pady=(0, 5), sticky="ews")
+        self.author_info = ctk.CTkLabel(self, text=f"by: {main_author}")
+        self.author_info.grid(row=9, column=0, padx=20, pady=(0, 20), sticky="ews")
 
     @property
     def default_tmp_path(self):
@@ -57,8 +53,7 @@ class control_frame(ctk.CTkFrame):
         """Setter for the temporary file path"""
         self._default_tmp_path = path
 
-    def show_last_selected(self, last_selected, last_name):
-        # Show status and its indicator
+    def init_last_selected(self, last_selected, last_name):
         self.label_action = ctk.CTkLabel(self, text="Last selected:")
         self.label_action.grid(row=6, column=0, padx=20, pady=(20, 0), sticky="new")
         self.last_selected_text = tk.StringVar()
@@ -67,7 +62,17 @@ class control_frame(ctk.CTkFrame):
                                            width=100, state="disabled",
                                            text_color_disabled="white")
         self.button_action.grid(row=7, column=0, padx=20, pady=(10, 20), sticky="new")
+        self.first_run = False
 
+    def show_last_selected(self, last_selected, last_name):
+        # Show status and its indicator
+        if (self.first_run == True):
+            self.init_last_selected(last_selected, last_name)
+        else:
+            self.last_selected_text = tk.StringVar()
+            self.last_selected_text.set(f"#{last_selected} {last_name}")
+            self.button_action.configure(textvariable=self.last_selected_text)
+        
     def open_default_sav(self):
         default_save_path = os.environ['LOCALAPPDATA']
         default_save_path = os.path.join(default_save_path, 'TokyoXtremeRacer\Saved\SaveGames')
@@ -151,16 +156,25 @@ class control_frame(ctk.CTkFrame):
                 json.dump(vehicle_livery, buffer_data, ensure_ascii=False)
 
     def button_open_filedialog_callback(self):
-        path = filedialog.askopenfilename().replace("\\","/")
+        default_save_path = os.environ['LOCALAPPDATA']
+        default_save_path = os.path.join(default_save_path, 'TokyoXtremeRacer').replace("\\","/")
+
+        path = filedialog.askopenfilename(filetypes=[('UE5 Save File', '*.sav'),
+                                                    ('All Files', '*.*')],
+                                                    initialdir=default_save_path).replace("\\","/")
         if path:
             self.sav_to_json(path)
             self.car_list_section.update_car_list()
         self.master.title(f"Tokyo Xtreme Racer - Livery Tool | {path}")
 
     def button_save_callback(self):
+        default_save_path = os.environ['LOCALAPPDATA']
+        default_save_path = os.path.join(default_save_path, 'TokyoXtremeRacer').replace("\\","/")
+        
         path = filedialog.asksaveasfilename(filetypes=[('UE5 Save File', '*.sav'),
                                                     ('All Files', '*.*')],
                                                     defaultextension='.sav',
+                                                    initialdir=default_save_path,
                                                     confirmoverwrite=True,
                                                     initialfile=f"UserData_00.sav")
         if path:
@@ -181,8 +195,6 @@ class control_frame(ctk.CTkFrame):
     def button_callback(self):
         print("button pressed")
 
-    def get_credits(self):
-        self.credits = credits_frame(self)
 
 class car_list_frame(ctk.CTkScrollableFrame):
     def __init__(self, master, control_section, **kwargs):
@@ -254,10 +266,10 @@ class App(ctk.CTk):
 
         # Set window attributes
         self.title("Tokyo Xtreme Racer - Livery Tool")
+        self.iconbitmap('./app.ico')
         self.geometry(f"{520}x{560}")
 
-        # Adjust rows and columns (4x4)
-        # self.grid_columnconfigure((1, 2), weight=0)
+        # Adjust rows and columns
         self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure(1, weight=1)
 
