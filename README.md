@@ -1,8 +1,6 @@
 # Tokyo Xtreme Racer - Livery Tool
 
-<figure>
-  <img src=“https://github.com/rafliard23/txr-livery-editor-py/blob/main/img/livery_tool-gui.png” alt="TXR Livery Tool" style="width:60%">
-</figure>  
+![TXR Livery Tool](https://github.com/rafliard23/txr-livery-editor-py/blob/main/img/livery_tool-gui.png)
 
 An Educational tool that lets you to study Livery data from Tokyo Xtreme Racer (2025) taken from User save file.
 
@@ -27,7 +25,6 @@ Extract and Restore livery data from the game .sav file. Extracted livery come a
 
 ### Graphical User Interface
 GUI makes it everyone can use this tool without tinkering with terminal/command prompt and more efficient process to process your file.
-
 
 ## Disclaimer
 - To ensure minimal damage, always make a backup before processing a file.
