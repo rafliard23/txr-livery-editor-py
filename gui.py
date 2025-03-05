@@ -6,7 +6,7 @@ import json
 import os
 import subprocess
 
-version = "v1.0 RC2"
+version = "v1.0.0"
 main_author = "rafli.ard23"
         
 class control_frame(ctk.CTkFrame):
@@ -21,7 +21,7 @@ class control_frame(ctk.CTkFrame):
 
         self._default_tmp_path = "./bin/temp/tmp.json"
         
-        # Save File IO Function
+        # File IO Function
         self.button_open = ctk.CTkButton(self, text="Open", width=100,command=self.button_open_filedialog_callback)
         self.button_open.grid(row=0, column=0, padx=20, pady=(40, 20), sticky="ew")
         self.button_auto = ctk.CTkButton(self, text="Autoload", width=100, command=self.button_autoload_callback)
@@ -65,7 +65,6 @@ class control_frame(ctk.CTkFrame):
         self.first_run = False
 
     def show_last_selected(self, last_selected, last_name):
-        # Show status and its indicator
         if (self.first_run == True):
             self.init_last_selected(last_selected, last_name)
         else:
@@ -199,16 +198,15 @@ class control_frame(ctk.CTkFrame):
 class car_list_frame(ctk.CTkScrollableFrame):
     def __init__(self, master, control_section, **kwargs):
         super().__init__(master, **kwargs)
-        self.control_section = control_section  # Store reference to control_frame
-        # self.list_car()
+        self.control_section = control_section
         
     def update_car_list(self):
         """Refresh the car list when a new save file is loaded."""
         for widget in self.winfo_children():
-            widget.destroy()  # Clear old buttons
+            widget.destroy()
 
         # Reload data
-        data = self.control_section.default_tmp_path # Get path from control_frame
+        data = self.control_section.default_tmp_path
         if not os.path.exists(data):
             print("Error: JSON file not found!")
             return
@@ -226,7 +224,7 @@ class car_list_frame(ctk.CTkScrollableFrame):
             .get("MyCars_0", {})
             .get("Map", [])
         )
-        # Extract all CarNameId_0 values
+    
         self.car_names = [
             self.car["value"]["Struct"]["Struct"]["CarNameId_0"]["Name"]
             for self.car in my_cars
@@ -246,18 +244,15 @@ class car_list_frame(ctk.CTkScrollableFrame):
 
     
     def button_callback(self, car_id, car_names):
-        """Function that gets called when a button is clicked"""
-        self.last_selected = car_id  # Store the last clicked button
+        
+        self.last_selected = car_id 
         self.last_name = car_names
         self.control_section.show_last_selected(self.last_selected, self.last_name)
-        # print(f"Selected: {self.last_selected}, {self.last_name}")
 
     def get_last_selected(self):
-        """Retrieve the last clicked button value"""
         return self.last_selected
     
     def get_last_name(self):
-        """Retrieve the last clicked button value"""
         return self.last_name
 
 class App(ctk.CTk):
